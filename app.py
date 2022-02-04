@@ -136,6 +136,15 @@ def update_reminder(id):
 
     return jsonify("Reminder updated")
 
+@app.route("/reminder/delete/<id>", methods=["DELETE"])
+def delete_reminder(id):
+    record = db.session.query(Reminder).filter(Reminder.id == id).first()
+    
+    db.session.delete(record)
+    db.session.commit()
+
+    return jsonify("Reminder deleted")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
