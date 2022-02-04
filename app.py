@@ -99,5 +99,43 @@ def get_months_by_year(year):
     return jsonify(multiple_month_schema.dump(records))
 
 
+@app.route("/reminder/add", methods=["POST"])
+def add_reminder():
+    post_data = request.get_json()
+    day = post_data["day"]
+    month = post_data["month"]
+    year = post_data["year"]
+    text = post_data["text"]
+
+    record = Reminder(day, month, year, text)
+    db.session.add(record)
+    db.session.commit()
+
+    return jsonify("Reminder added")
+
+@app.route("/reminder/get", methods=["GET"])
+def get_all_reminders():
+    records = db.session.query(Reminder).all()
+    return jsonify(multiple_reminder_schema.dump(records))
+
+@app.route("/reminder/get/<month>/<year>", methods=["GET"])
+def get_reminders_by_month(month, year):
+    records = db.session.query(Reminder).filter(Reminder.month == month).filter(Reminder.year == year).all()
+    return jsonify(multiple_reminder_schema.dump(records))
+
+@app.route("/reminder/update/<id>", methods=["PUT"])
+def update_reminder(id):
+    record = db.session.query(Reminder).filter(Reminder.id == id).first()
+
+    put_data = request.get_json()
+    text = put_data.get("text")
+
+    if text is not None:
+        record.text = text
+        db.session.commit()
+
+    return jsonify("Reminder updated")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
